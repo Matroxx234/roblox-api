@@ -1,28 +1,22 @@
-const express = require("express");
-const cors = require("cors");
-const { getGamePasses } = require("./utils");
+const axios = require("axios");
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+async function getGamePasses(userId) {
+  try {
+    const url = `https://inventory.roblox.com/v1/users/${userId}/assets?assetTypes=GamePass`;
+    const { data } = await axios.get(url);
 
-app.use(cors());
-app.use(express.json());
+    const passes = data.data.map((item) => ({
+      id: item.id,
+      name: item.name,
+      price: 0, // tu peux aussi appeler /api/productinfo si tu veux le prix
+      assetType: "GamePass"
+    }));
 
-app.get("/api/passes/:userId", async (req, res) => {
-  const userId = req.params.userId;
-  if (!userId || isNaN(userId)) {
-    return res.status(400).json({ error: "UserId invalide" });
+    return passes;
+  } catch (error) {
+    console.error("getGamePasses:", error.message);
+    return [];
   }
+}
 
-  const passes = await getGamePasses(userId);
-
-  return res.json({ passes });
-});
-
-app.get("/", (req, res) => {
-  res.send("API Roblox GamePass Ready.");
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+module.exports = { getGamePasses };
