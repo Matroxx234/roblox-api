@@ -8,34 +8,36 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Route principale de test
+// Route racine pour tester si l'API fonctionne
 app.get("/", (_, res) => {
-  res.send("✅ API Roblox GamePass est en ligne !");
+  res.send("✅ API Roblox GamePass en ligne");
 });
 
-// Route : récupération des Game Pass d’un utilisateur Roblox
+// Route pour récupérer les Game Pass d'un utilisateur
 app.get("/api/passes/:userId", async (req, res) => {
   const userId = req.params.userId;
 
+  // Vérifie que userId est un nombre valide
   if (!/^\d+$/.test(userId)) {
     return res.status(400).json({ error: "userId invalide" });
   }
 
-  const robloxUrl = `https://inventory.roblox.com/v1/users/${userId}/assets?assetTypes=GamePass&limit=100&sortOrder=Asc`;
+  // Nouvelle API Roblox (mars 2025) pour récupérer les Game Pass
+  const url = `https://apis.roblox.com/game-passes/v1/users/${userId}/game-passes?count=100`;
 
   try {
-    const { data } = await axios.get(robloxUrl);
+    const { data } = await axios.get(url);
 
-    const passes = (data.data || []).map((item) => ({
-      id: item.id,
-      name: item.name,
-      price: 0, // Tu peux ajouter une requête pour le prix réel
-      assetType: "GamePass",
+    const passes = (data.data || []).map(p => ({
+      id: p.id,
+      name: p.name,
+      price: p.price || 0,
+      assetType: "GamePass"
     }));
 
     return res.json({ passes });
   } catch (error) {
-    // Si aucun Game Pass : on retourne une liste vide au lieu d'une erreur
+    // Si l'utilisateur n'a aucun pass ou est introuvable → retourne liste vide
     if (error.response?.status === 404) {
       return res.json({ passes: [] });
     }
@@ -49,5 +51,5 @@ app.get("/api/passes/:userId", async (req, res) => {
 
 // Lancement du serveur
 app.listen(PORT, () => {
-  console.log(`▶ API active sur le port ${PORT}`);
+  console.log(`▶ API en ligne sur le port ${PORT}`);
 });
