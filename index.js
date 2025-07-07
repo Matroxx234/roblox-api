@@ -12,7 +12,7 @@ app.use(express.json());
 const cache = new Map();
 const CACHE_DURATION = 60 * 1000; // 60 sec
 
-// 🔹 Fonction pour récupérer toutes les pages de Game Pass avec filtrage
+// 🔹 Récupération paginée avec filtre (et délai entre requêtes)
 async function getAllGamePasses(userId, creatorType) {
   let passes = [];
   let cursor = "";
@@ -24,7 +24,7 @@ async function getAllGamePasses(userId, creatorType) {
     const data = res.data;
 
     const newPasses = (data.data || [])
-      .filter((item) => item.price > 0) // 🔥 On ignore les passes à 0 Robux
+      .filter((item) => item.price > 0)
       .map((item) => ({
         id: item.id,
         name: item.name,
@@ -36,6 +36,9 @@ async function getAllGamePasses(userId, creatorType) {
 
     if (!data.nextPageCursor) break;
     cursor = data.nextPageCursor;
+
+    // 🛡️ Pause entre les requêtes pour éviter 429
+    await new Promise(resolve => setTimeout(resolve, 300));
   }
 
   return passes;
@@ -43,7 +46,7 @@ async function getAllGamePasses(userId, creatorType) {
 
 // 🌐 Route test
 app.get("/", (_, res) => {
-  res.send("✅ API Roblox GamePass (avec filtre prix > 0)");
+  res.send("✅ API Roblox GamePass avec cache, pagination & anti-429");
 });
 
 // 📦 Route principale
@@ -78,7 +81,7 @@ app.get("/api/passes/:userId", async (req, res) => {
 function handleError(err, res) {
   console.error("getGamePasses ▶", err.message);
   if (err.response?.status === 429) {
-    return res.status(429).json({ error: "Trop de requêtes – réessaye bientôt." });
+    return res.status(429).json({ error: "Trop de requêtes – attends 1-2 minutes." });
   }
   return res.status(err.response?.status || 500).json({ error: "Erreur serveur" });
 }
