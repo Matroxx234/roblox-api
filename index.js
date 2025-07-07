@@ -3,13 +3,15 @@ const cors = require("cors");
 const axios = require("axios");
 
 const app = express();
+
+// Render te fournit automatiquement le bon port dans process.env.PORT
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
 app.get("/", (_, res) => {
-  res.send("✅ API Roblox GamePass fonctionne sans token !");
+  res.send("✅ API Roblox GamePass en ligne !");
 });
 
 app.get("/api/passes/:userId", async (req, res) => {
@@ -33,15 +35,11 @@ app.get("/api/passes/:userId", async (req, res) => {
     res.json({ passes });
   } catch (err) {
     console.error("getGamePasses ▶", err.message);
-    return res.status(err.response?.status || 500).json({ error: "Erreur lors de la récupération des Game Pass" });
+    res.status(err.response?.status || 500).json({ error: "Erreur récupération GamePass" });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`▶ API en ligne sur le port ${PORT}`);
-});
-
-// Lancement du serveur
+// 🟢 Le serveur n'écoute qu'une seule fois ici :
 app.listen(PORT, () => {
   console.log(`▶ API en ligne sur le port ${PORT}`);
 });
