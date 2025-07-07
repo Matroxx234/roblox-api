@@ -6,14 +6,6 @@
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": [
-    "roblox",
-    "gamepass",
-    "api",
-    "express"
-  ],
-  "author": "TonNomIci",
-  "license": "MIT",
   "dependencies": {
     "axios": "^1.6.7",
     "cors": "^2.8.5",
