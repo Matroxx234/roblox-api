@@ -1,11 +1,19 @@
 {
-  "name": "roblox-passes-api",
+  "name": "roblox-gamepass-api",
   "version": "1.0.0",
-  "description": "API pour récupérer les Game Pass Roblox d'un joueur",
+  "description": "API Express pour récupérer les Game Pass Roblox d'un utilisateur",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
+  "keywords": [
+    "roblox",
+    "gamepass",
+    "api",
+    "express"
+  ],
+  "author": "TonNomIci",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.6.7",
     "cors": "^2.8.5",
